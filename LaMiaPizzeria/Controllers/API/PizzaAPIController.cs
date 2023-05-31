@@ -22,7 +22,7 @@ namespace LaMiaPizzeria.Controllers.API
 
         }
 
-        [HttpGet("{name}")]
+        [HttpGet]
         public IActionResult SearchByName(string nome)
         {
             using (PizzeriaContext db = new PizzeriaContext())
@@ -52,6 +52,78 @@ namespace LaMiaPizzeria.Controllers.API
                 if (pizzaById != null)
                 {
                     return Ok(pizzaById);
+                }
+                else
+                {
+                    return NotFound();
+                }
+
+            }
+
+        }
+
+        [HttpPost]
+        public IActionResult Create([FromBody] Pizza pizza)
+        {
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+            else
+            {
+                using (PizzeriaContext db = new PizzeriaContext())
+                {
+                    db.Pizze.Add(pizza);
+                    db.SaveChanges();
+
+                    return Ok();
+                }
+
+            }
+
+        }
+
+        [HttpDelete("{id}")]
+        public IActionResult Delete(int id)
+        {
+            using (PizzeriaContext db = new PizzeriaContext())
+            {
+                Pizza? pizzaToDelete = db.Pizze.Where(pizza => pizza.Id == id).FirstOrDefault();
+
+                if (pizzaToDelete != null)
+                {
+                    db.Remove(pizzaToDelete);
+                    db.SaveChanges();
+
+                    return Ok();
+                }
+                else
+                {
+                    return NotFound("Pizza non trovata!!");
+
+                }
+
+            }
+
+        }
+
+        [HttpPut("{id}")]
+        public IActionResult Update(int id, [FromBody] Pizza data)
+        {
+            using (PizzeriaContext db = new PizzeriaContext())
+            {
+                Pizza? pizzaToModify = db.Pizze.Where(pizza => pizza.Id == id).FirstOrDefault();
+
+                if (pizzaToModify != null)
+                {
+                    pizzaToModify.Immagine = data.Immagine;
+                    pizzaToModify.Nome = data.Nome;
+                    pizzaToModify.Descrizione = data.Descrizione;
+                    pizzaToModify.Prezzo = data.Prezzo;
+
+                    db.SaveChanges();
+                    return Ok();
                 }
                 else
                 {
